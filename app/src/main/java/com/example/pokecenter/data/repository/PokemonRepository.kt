@@ -1,5 +1,7 @@
 package com.example.pokecenter.data.repository
 
+import com.example.pokecenter.data.local.FavoriteDao
+import com.example.pokecenter.data.local.FavoriteEntity
 import com.example.pokecenter.data.remote.PokeApiService
 import com.example.pokecenter.data.remote.dto.ChainLinkDto
 import com.example.pokecenter.data.remote.dto.EvolutionChainResponse
@@ -14,9 +16,12 @@ import com.example.pokecenter.domain.model.PokemonType
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class PokemonRepository (
-    private val api: PokeApiService // Konstruktorn
+    private val api: PokeApiService, // Konstruktorn
+    private val favoriteDao: FavoriteDao
 ) {
     suspend fun getPokemonList(limit: Int, offset: Int):
             List<Pokemon> = coroutineScope { val listResponse = api.getPokemonList(limit, offset)
@@ -37,6 +42,25 @@ class PokemonRepository (
         val chainId = species.evolutionChain.url.trimEnd('/').substringAfterLast('/').toInt()
         return api.getEvolutionChain(chainId).toEvolutionChain()
     }
+    fun getFavorites(): Flow<List<Pokemon>> =
+        favoriteDao.getAllFavorites().map { entities -> entities.map { it.toPokemon()}}
+
+    suspend fun addFavorite(pokemon: Pokemon) {
+        favoriteDao.insert(
+            FavoriteEntity(
+                pokemonId = pokemon.id,
+                name = pokemon.name,
+                spriteUrl = pokemon.imageUrl,
+                primaryType = pokemon.primaryType.name
+            )
+        )
+    }
+    suspend fun removeFavorite(pokemonId: Int) {
+        favoriteDao.delete(pokemonId)
+    }
+
+    fun isFavorite(pokemonId: Int): Flow<Boolean> =
+        favoriteDao.isFavorite(pokemonId)
 }
 
 // Mapping av DTO -> domain
@@ -90,3 +114,9 @@ private fun ChainLinkDto.toStages(): List<EvolutionStage> {
     emptyList()
     return listOf(stage) + next
 }
+private fun FavoriteEntity.toPokemon(): Pokemon = Pokemon(
+    id = pokemonId,
+    name = name,
+    imageUrl = spriteUrl,
+    types = listOf(PokemonType.fromApiName(primaryType))
+)
