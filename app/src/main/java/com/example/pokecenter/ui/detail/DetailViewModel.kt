@@ -1,6 +1,6 @@
 package com.example.pokecenter.ui.detail
 
-import androidx.lifecycle.ViewModel
+ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.EvolutionChain
