@@ -1,8 +1,12 @@
 package com.example.pokecenter.data.repository
 
 import com.example.pokecenter.data.remote.PokeApiService
+import com.example.pokecenter.data.remote.dto.ChainLinkDto
+import com.example.pokecenter.data.remote.dto.EvolutionChainResponse
 import com.example.pokecenter.data.remote.dto.PokemonDetailResponse
 import com.example.pokecenter.data.remote.dto.PokemonListItemDto
+import com.example.pokecenter.domain.model.EvolutionChain
+import com.example.pokecenter.domain.model.EvolutionStage
 import com.example.pokecenter.domain.model.Pokemon
 import com.example.pokecenter.domain.model.PokemonDetail
 import com.example.pokecenter.domain.model.PokemonStat
@@ -26,6 +30,12 @@ class PokemonRepository (
             }
     suspend fun getPokemonDetail(id: Int): PokemonDetail {
         return api.getPokemonDetail(id).toPokemonDetail()
+    }
+    suspend fun getEvolutionChain(speciesId: Int):
+            EvolutionChain {
+        val species = api.getPokemonSpecies(speciesId)
+        val chainId = species.evolutionChain.url.trimEnd('/').substringAfterLast('/').toInt()
+        return api.getEvolutionChain(chainId).toEvolutionChain()
     }
 }
 
@@ -66,3 +76,17 @@ private fun PokemonDetailResponse.toPokemonDetail():
             },
             moves = moves.map { it.move.name }
         )
+
+private fun EvolutionChainResponse.toEvolutionChain():
+        EvolutionChain = EvolutionChain(stages = chain.toStages())
+private fun ChainLinkDto.toStages(): List<EvolutionStage> {
+    val id = species.url.trimEnd('/').substringAfterLast('/').toInt()
+    val stage = EvolutionStage(
+        speciesId = id,
+        speciesName = species.name,
+        minLevel = evolutionDetails.firstOrNull()?.minlevel
+    )
+    val next = evolvesTo.firstOrNull()?.toStages() ?:
+    emptyList()
+    return listOf(stage) + next
+}
