@@ -58,7 +58,7 @@ class PokemonRepository (
     suspend fun removeFavorite(pokemonId: Int) {
         favoriteDao.delete(pokemonId)
     }
-
+// En funktion för att kunna toogla favorit pokemon i detaljvyn sedan.
     fun isFavorite(pokemonId: Int): Flow<Boolean> =
         favoriteDao.isFavorite(pokemonId)
 }
