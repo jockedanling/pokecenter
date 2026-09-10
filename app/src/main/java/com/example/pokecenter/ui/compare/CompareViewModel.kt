@@ -5,11 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.PokemonDetail
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 // Ett stat-par (t.ex. HP för pokemon A vs B) som CompareScreen kan visa sida vid sida
 data class StatComparison(
@@ -42,7 +44,8 @@ data class CompareUiState(
             }
         }
 }
-class CompareViewModel (
+@HiltViewModel
+class CompareViewModel @Inject constructor (
     private val repository: PokemonRepository ): ViewModel() {
     // Ett par där Viewmodelen får bara ändra state och UI får bara läsa
     private val _uiState = MutableStateFlow(CompareUiState())

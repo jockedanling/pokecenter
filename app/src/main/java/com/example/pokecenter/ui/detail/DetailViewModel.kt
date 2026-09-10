@@ -1,15 +1,19 @@
 package com.example.pokecenter.ui.detail
 
+ import androidx.lifecycle.SavedStateHandle
  import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.EvolutionChain
 import com.example.pokecenter.domain.model.PokemonDetail
-import kotlinx.coroutines.flow.MutableStateFlow
+ import dagger.hilt.android.lifecycle.HiltViewModel
+ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+ import javax.inject.Inject
+
 
 data class DetailUiState(
     val pokemon: PokemonDetail? = null,
@@ -19,10 +23,11 @@ data class DetailUiState(
     val isEvolutionLoading: Boolean = false,
     val evolutionError: String? = null
 )
-class DetailViewModel(
+@HiltViewModel
+class DetailViewModel @Inject constructor(
     private val repository: PokemonRepository,
-    private val pokemonId: Int
-) : ViewModel() {
+    savedStateHandle: SavedStateHandle ) : ViewModel() {
+    private val pokemonId: Int = checkNotNull(savedStateHandle["pokemonId"])
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
