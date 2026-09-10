@@ -13,6 +13,8 @@ abstract class PokemonDatabase : RoomDatabase() {
     companion object {
         @kotlin.jvm.Volatile
         private var INSTANCE: PokemonDatabase? = null
+
+        // Eventuellt överflödig denna funktion när Room byggs via Hilt.
         fun getInstance(context: Context): PokemonDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
