@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.pokecenter.ui.theme.PokeCenterTheme
+import com.example.pokecenter.ui.navigation.PokedexNavGraph
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PokeCenterTheme {
-                // Här kommer PokedexNavGraph() senare
+                PokedexNavGraph()
             }
         }
     }
