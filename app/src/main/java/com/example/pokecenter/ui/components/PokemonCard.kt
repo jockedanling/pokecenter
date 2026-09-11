@@ -46,7 +46,7 @@ fun PokemonCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding( horizontal = 12.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Pokédex-nummer i övre högra hörnet
@@ -77,7 +77,7 @@ fun PokemonCard(
 
             // Typ-badges (använder TypeBadge-komponenten)
             FlowRow(
-                modifier = Modifier.padding(top = 6.dp),
+                modifier = Modifier.padding(top = 6.dp, bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 pokemon.types.forEach { type ->
