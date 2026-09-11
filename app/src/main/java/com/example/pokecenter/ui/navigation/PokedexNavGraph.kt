@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pokecenter.ui.home.HomeScreen
 import com.example.pokecenter.ui.theme.PokeCenterTheme
+import com.example.pokecenter.ui.favorites.FavoritesScreen
 
 /**
  Rutter — varje skärm har en unik sträng-adress.
@@ -154,9 +155,15 @@ fun PokedexNavGraph() {
                 )
             }
 
-            // Favoriter — ersätts med FavoritesScreen senare
+            // Favoriter
             composable(Routes.FAVORITES) {
-                PlaceholderScreen(title = "Favorites")
+                FavoritesScreen(
+                    favorites = emptyList(), // Ersätts senare med Viewmodel-data
+                    onPokemonClick = { id ->
+                        navController.navigate(Routes.detailRoute(id))
+
+                    }
+                )
             }
 
             // Compare — ersätts med CompareScreen senare
