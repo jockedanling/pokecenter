@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.Pokemon
 import com.example.pokecenter.domain.model.PokemonType
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +22,8 @@ data class HomeUiState(
     val error: String? = null,
     val endReached: Boolean = false
 )
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val repository: PokemonRepository ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
