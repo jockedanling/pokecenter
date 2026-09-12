@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Compare
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -32,6 +33,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pokecenter.ui.detail.DetailScreen
+import com.example.pokecenter.ui.detail.DetailViewModel
 import com.example.pokecenter.ui.home.HomeScreen
 import com.example.pokecenter.ui.theme.PokeCenterTheme
 import com.example.pokecenter.ui.favorites.FavoritesScreen
@@ -193,10 +196,32 @@ fun PokedexNavGraph() {
                 arguments = listOf(
                     navArgument("pokemonId") { type = NavType.IntType }
                 )
-            ) { backStackEntry ->
+            ) {
+                val viewModel: DetailViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                when {
+                    uiState.isLoading -> {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    uiState.error != null -> {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = uiState.error ?: "Something went wrong")
+                        }
+                    }
+                    uiState.pokemon != null -> {
+                        DetailScreen(pokemon = uiState.pokemon!!,
+                            evolutionChain = uiState.evolutionChain,
+                            isEvolutionLoading = uiState.isEvolutionLoading,
+                            onBackClick = { navController.popBackStack()},
+                            onLoadEvolution = {viewModel.loadEvolutionChain()})
+                    }
+                }
+                /*backStackEntry ->
                 // Plocka ut ID: "detail/25" → pokemonId = 25
                 val pokemonId = backStackEntry.arguments?.getInt("pokemonId") ?: return@composable
-                PlaceholderScreen(title = "Detail #$pokemonId")
+                PlaceholderScreen(title = "Detail #$pokemonId") */
             }
         }
     }
