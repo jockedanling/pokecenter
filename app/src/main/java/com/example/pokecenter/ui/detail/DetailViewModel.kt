@@ -5,7 +5,8 @@ package com.example.pokecenter.ui.detail
 import androidx.lifecycle.viewModelScope
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.EvolutionChain
-import com.example.pokecenter.domain.model.PokemonDetail
+ import com.example.pokecenter.domain.model.Pokemon
+ import com.example.pokecenter.domain.model.PokemonDetail
  import dagger.hilt.android.lifecycle.HiltViewModel
  import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +22,8 @@ data class DetailUiState(
     val error: String? = null,
     val evolutionChain: EvolutionChain? = null,
     val isEvolutionLoading: Boolean = false,
-    val evolutionError: String? = null
+    val evolutionError: String? = null,
+    val isFavorite: Boolean = false
 )
 @HiltViewModel
 class DetailViewModel @Inject constructor(
@@ -32,7 +34,11 @@ class DetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
-    init { loadPokemon() }
+    init {
+        loadPokemon()
+        observeFavoriteStatus()
+    }
+
     private fun loadPokemon() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -46,24 +52,54 @@ class DetailViewModel @Inject constructor(
     }
 
 
-        // Anropas av UI först när användaren trycker på Evolution-tabben
-        fun loadEvolutionChain() {
-            val s = _uiState.value
-            if (s.evolutionChain != null || s.isEvolutionLoading) return
+    // Anropas av UI först när användaren trycker på Evolution-tabben
+    fun loadEvolutionChain() {
+        val s = _uiState.value
+        if (s.evolutionChain != null || s.isEvolutionLoading) return
 
-            viewModelScope.launch {
-                _uiState.update { it.copy(isEvolutionLoading = true, evolutionError = null) }
-                try {
-                    val chain = repository.getEvolutionChain(pokemonId)
-                    _uiState.update { it.copy(evolutionChain = chain, isEvolutionLoading = false) }
-                } catch (e: Exception) {
-                    _uiState.update {
-                        it.copy(
-                            isEvolutionLoading = false,
-                            evolutionError = e.message) }
+        viewModelScope.launch {
+            _uiState.update { it.copy(isEvolutionLoading = true, evolutionError = null) }
+            try {
+                val chain = repository.getEvolutionChain(pokemonId)
+                _uiState.update { it.copy(evolutionChain = chain, isEvolutionLoading = false) }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isEvolutionLoading = false,
+                        evolutionError = e.message
+                    )
                 }
             }
         }
     }
+
+    private fun observeFavoriteStatus() {
+        viewModelScope.launch {
+            repository.isFavorite(pokemonId).collect { favorite ->
+                _uiState.update { it.copy(isFavorite = favorite) }
+            }
+        }
+
+    }
+
+    // Anropas av hjärt-knappen i DetailScreen
+    fun toggleFavorite() {
+        val pokemon = _uiState.value.pokemon ?: return
+        viewModelScope.launch {
+            if (_uiState.value.isFavorite) {
+                repository.removeFavorite(pokemonId)
+            } else {
+                repository.addFavorite(
+                    Pokemon(
+                        id = pokemon.id,
+                        name = pokemon.name,
+                        imageUrl = pokemon.imageUrl,
+                        types = pokemon.types
+                    )
+                )
+            }
+        }
+    }
+}
 
 
