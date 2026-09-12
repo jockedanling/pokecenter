@@ -18,23 +18,30 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.ConcurrentHashMap
 
 class PokemonRepository (
     private val api: PokeApiService, // Konstruktorn
     private val favoriteDao: FavoriteDao
 ) {
+
+    // Cachar rådata per Pokémon-id så samma Pokémon aldrig hämtas två gånger från nätet
+    private val detailCache = ConcurrentHashMap<Int,
+            PokemonDetailResponse>()
+    private suspend fun fetchDetail(id: Int):
+            PokemonDetailResponse = detailCache[id] ?: api.getPokemonDetail(id).also { detailCache[id] = it }
     suspend fun getPokemonList(limit: Int, offset: Int):
             List<Pokemon> = coroutineScope { val listResponse = api.getPokemonList(limit, offset)
 
         // Listan har bara namn + url, som hämtar detalj per pokemon parallellt för types/bild
         listResponse.results
             .map { item -> async {
-                api.getPokemonDetail(item.extractId()) }} // Plockar ut ID ur URL:en.
+                fetchDetail(item.extractId()) }} // Plockar ut ID ur URL:en.
             .awaitAll()
             .map { it.toPokemon() }
             }
     suspend fun getPokemonDetail(id: Int): PokemonDetail {
-        return api.getPokemonDetail(id).toPokemonDetail()
+        return fetchDetail(id).toPokemonDetail()
     }
     suspend fun getEvolutionChain(speciesId: Int):
             EvolutionChain {
