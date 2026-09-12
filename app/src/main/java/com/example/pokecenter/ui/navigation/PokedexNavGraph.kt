@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -33,6 +35,7 @@ import androidx.navigation.navArgument
 import com.example.pokecenter.ui.home.HomeScreen
 import com.example.pokecenter.ui.theme.PokeCenterTheme
 import com.example.pokecenter.ui.favorites.FavoritesScreen
+import com.example.pokecenter.ui.favorites.FavoritesViewModel
 
 /**
  Rutter — varje skärm har en unik sträng-adress.
@@ -155,14 +158,27 @@ fun PokedexNavGraph() {
                 )
             }
 
-            // Favoriter
+//            // Favoriter
+//            composable(Routes.FAVORITES) {
+//                FavoritesScreen(
+//                    favorites = emptyList(), // Ersätts senare med Viewmodel-data
+//                    onPokemonClick = { id ->
+//                        navController.navigate(Routes.detailRoute(id))
+//
+//                    }
+//                )
+//            }
+            // Favoriter med viewmodel
             composable(Routes.FAVORITES) {
+                val viewModel: FavoritesViewModel = hiltViewModel()
+                val favorites by
+                viewModel.favorites.collectAsStateWithLifecycle()
                 FavoritesScreen(
-                    favorites = emptyList(), // Ersätts senare med Viewmodel-data
+                    favorites = favorites,
                     onPokemonClick = { id ->
                         navController.navigate(Routes.detailRoute(id))
-
-                    }
+                    },
+                    onRemoveFavorite = viewModel::removeFavorite
                 )
             }
 
@@ -204,10 +220,11 @@ fun PlaceholderScreen(title: String) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+/*@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NavGraphPreview() {
     PokeCenterTheme {
         PokedexNavGraph()
     }
 }
+ */
