@@ -39,7 +39,7 @@ import com.example.pokecenter.ui.home.HomeScreen
 import com.example.pokecenter.ui.theme.PokeCenterTheme
 import com.example.pokecenter.ui.favorites.FavoritesScreen
 import com.example.pokecenter.ui.favorites.FavoritesViewModel
-
+import com.example.pokecenter.ui.compare.CompareViewModel
 /**
  Rutter — varje skärm har en unik sträng-adress.
  Detaljvyn har en variabel {pokemonId} som fylls i vid navigation.
@@ -186,8 +186,16 @@ fun PokedexNavGraph() {
             }
 
             // Compare — ersätts med CompareScreen senare
+
             composable(Routes.COMPARE) {
-                PlaceholderScreen(title = "Compare")
+                val viewModel: CompareViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                // ToDo för erik sedan: Byt placeholderScreen mot CompareScreen när den finns
+//                CompareScreen(
+//                    uiState = uiState,
+//                    onSelectFirst = viewModel::selectFirst,
+//                    onSelectSecond = viewModel::selectSecond)
+                    PlaceholderScreen(title = "Compare")
             }
 
             // Detaljvy — tar emot pokemonId från rutten
