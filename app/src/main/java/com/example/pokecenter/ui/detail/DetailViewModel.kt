@@ -55,12 +55,13 @@ class DetailViewModel @Inject constructor(
     // Anropas av UI först när användaren trycker på Evolution-tabben
     fun loadEvolutionChain() {
         val s = _uiState.value
+        val speciesId = s.pokemon?.speciesId ?: return
         if (s.evolutionChain != null || s.isEvolutionLoading) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(isEvolutionLoading = true, evolutionError = null) }
             try {
-                val chain = repository.getEvolutionChain(pokemonId)
+                val chain = repository.getEvolutionChain(speciesId)
                 _uiState.update { it.copy(evolutionChain = chain, isEvolutionLoading = false) }
             } catch (e: Exception) {
                 _uiState.update {

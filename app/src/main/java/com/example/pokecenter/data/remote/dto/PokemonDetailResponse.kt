@@ -15,7 +15,8 @@ data class PokemonDetailResponse (
     val abilities: List<PokemonAbilitySlotDto>,
     val stats: List<PokemonStatsDto>,
     val sprites: PokemonSpritesDto,
-    val moves: List<PokemonMoveSlotDto>
+    val moves: List<PokemonMoveSlotDto>,
+    val species: NamedApiResourceDto
 )
 
 @Serializable

@@ -10,6 +10,7 @@ import com.example.pokecenter.domain.model.PokemonType
 object DetailPreviewData {
     val pokemon = PokemonDetail(
         id = 25,
+        speciesId = 25,
         name = "pikachu",
         imageUrl = null,
         types = listOf(PokemonType.ELECTRIC),
