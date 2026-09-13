@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.PokemonDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,14 +40,16 @@ data class CompareUiState(
             val a = firstPokemon ?: return emptyList()
             val b = secondPokemon ?: return emptyList()
             // Zip parar ihop stats i samma ordning från båda listorna
-            return a.stats.zip(b.stats) {statA, statB ->
-                StatComparison(statA.shortLabel,statA.value, statB.value)
+            return a.stats.zip(b.stats) { statA, statB ->
+                StatComparison(statA.shortLabel, statA.value, statB.value)
             }
         }
 }
+
 @HiltViewModel
-class CompareViewModel @Inject constructor (
-    private val repository: PokemonRepository ): ViewModel() {
+class CompareViewModel @Inject constructor(
+    private val repository: PokemonRepository
+) : ViewModel() {
     // Ett par där Viewmodelen får bara ändra state och UI får bara läsa
     private val _uiState = MutableStateFlow(CompareUiState())
     val uiState: StateFlow<CompareUiState> = _uiState.asStateFlow()
@@ -70,13 +73,21 @@ class CompareViewModel @Inject constructor (
                     if (isFirst) it.copy(firstPokemon = detail, isLoadingFirst = false)
                     else it.copy(secondPokemon = detail, isLoadingSecond = false)
                 }
-            }
-            catch(e: Exception) {
-                    _uiState.update {
-                        if (isFirst) it.copy(isLoadingFirst = false, error = e.message)
-                        else it.copy(isLoadingSecond = false, error = e.message)
-                    }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update {
+                    if (isFirst) it.copy(
+                        isLoadingFirst = false,
+                        error = "Could not load the first Pokémon."
+                    )
+                    else it.copy(
+                        isLoadingSecond = false,
+                        error = "Could not load the second Pokémon."
+                    )
                 }
             }
+
         }
     }
+}

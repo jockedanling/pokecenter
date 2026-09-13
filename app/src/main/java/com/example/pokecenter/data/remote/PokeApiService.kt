@@ -9,6 +9,12 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+/*
+Retrofit-interface mot PokéAPI v2
+
+Retrofit genererar implementationen utifrån annotationerna. BAS-URL:en sätts i AppModule.
+Alla funktioner är suspend så att de körs i en coroutine och inte blockerar UI-tråden.
+ */
 interface PokeApiService {
     @GET("pokemon")
     suspend fun getPokemonList(
