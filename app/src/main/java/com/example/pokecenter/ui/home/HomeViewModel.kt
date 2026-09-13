@@ -6,6 +6,7 @@ import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.Pokemon
 import com.example.pokecenter.domain.model.PokemonType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,11 +21,14 @@ data class HomeUiState(
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val error: String? = null,
+    val loadMoreError: String? = null,
     val endReached: Boolean = false
 )
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: PokemonRepository ) : ViewModel() {
+    private val repository: PokemonRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -32,26 +36,38 @@ class HomeViewModel @Inject constructor(
     private var offset = 0
     private val pageSize = 20
 
-    init { loadNextPage() }
+    init {
+        loadNextPage()
+    }
 
     fun onSearchQueryChange(query: String) {
-        _uiState.update { it.copy(searchQuery = query)}
+        _uiState.update { it.copy(searchQuery = query) }
         applyFilter()
     }
+
     fun onTypeSelected(type: PokemonType?) {
         _uiState.update {
             it.copy(
                 selectedType = if (
-                    it.selectedType == type) null else type)
+                    it.selectedType == type) null else type
+            )
         }
         applyFilter()
     }
-        fun loadNextPage() {
-            val s = _uiState.value
-            if (s.isLoading || s.isLoadingMore || s.endReached) return
 
-            viewModelScope.launch { _uiState.update { if (offset == 0)
-            it.copy(isLoading = true) else it.copy(isLoadingMore = true)}
+    fun loadNextPage() {
+        val s = _uiState.value
+        if (s.isLoading || s.isLoadingMore || s.endReached) return
+        val isFirstPage = offset == 0
+
+        viewModelScope.launch {
+            _uiState.update {
+                if (isFirstPage)
+                    it.copy(isLoading = true, error = null) else it.copy(
+                    isLoadingMore = true,
+                    loadMoreError = null
+                )
+            }
             try {
                 val page = repository.getPokemonList(limit = pageSize, offset = offset)
                 allLoaded += page
@@ -61,20 +77,34 @@ class HomeViewModel @Inject constructor(
                 }
 
                 applyFilter()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                    _uiState.update { it.copy(isLoading = false, isLoadingMore = false, error = e.message)}
+                _uiState.update {
+                    if (isFirstPage) it.copy(
+                        isLoading = false,
+                        isLoadingMore = false,
+                        error = "Could not load Pokémon. Check your connection and try again"
+                    )
+                    else it.copy(
+                        isLoadingMore = false,
+                        loadMoreError = "Could not load more Pokémon."
+                    )
                 }
             }
         }
+    }
 
-                private fun applyFilter() {
-                val s = _uiState.value
-                val filtered = allLoaded.filter { p -> p.name.contains(s.searchQuery, ignoreCase = true) &&
-                        (s.selectedType == null || p.types.contains(s.selectedType))
-                }
-                _uiState.update { it.copy(pokemonList = filtered)
-                }
-                }
-            }
+    private fun applyFilter() {
+        val s = _uiState.value
+        val filtered = allLoaded.filter { p ->
+            p.name.contains(s.searchQuery, ignoreCase = true) &&
+                    (s.selectedType == null || p.types.contains(s.selectedType))
+        }
+        _uiState.update {
+            it.copy(pokemonList = filtered)
+        }
+    }
+}
 
 
