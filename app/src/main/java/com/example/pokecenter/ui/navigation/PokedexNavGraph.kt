@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Compare
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -22,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -30,10 +33,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pokecenter.ui.detail.DetailScreen
+import com.example.pokecenter.ui.detail.DetailViewModel
 import com.example.pokecenter.ui.home.HomeScreen
 import com.example.pokecenter.ui.theme.PokeCenterTheme
 import com.example.pokecenter.ui.favorites.FavoritesScreen
-
+import com.example.pokecenter.ui.favorites.FavoritesViewModel
+import com.example.pokecenter.ui.compare.CompareViewModel
 /**
  Rutter — varje skärm har en unik sträng-adress.
  Detaljvyn har en variabel {pokemonId} som fylls i vid navigation.
@@ -155,20 +161,41 @@ fun PokedexNavGraph() {
                 )
             }
 
-            // Favoriter
+//            // Favoriter
+//            composable(Routes.FAVORITES) {
+//                FavoritesScreen(
+//                    favorites = emptyList(), // Ersätts senare med Viewmodel-data
+//                    onPokemonClick = { id ->
+//                        navController.navigate(Routes.detailRoute(id))
+//
+//                    }
+//                )
+//            }
+            // Favoriter med viewmodel
             composable(Routes.FAVORITES) {
+                val viewModel: FavoritesViewModel = hiltViewModel()
+                val favorites by
+                viewModel.favorites.collectAsStateWithLifecycle()
                 FavoritesScreen(
-                    favorites = emptyList(), // Ersätts senare med Viewmodel-data
+                    favorites = favorites,
                     onPokemonClick = { id ->
                         navController.navigate(Routes.detailRoute(id))
-
-                    }
+                    },
+                    onRemoveFavorite = viewModel::removeFavorite
                 )
             }
 
             // Compare — ersätts med CompareScreen senare
+
             composable(Routes.COMPARE) {
-                PlaceholderScreen(title = "Compare")
+                val viewModel: CompareViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                // ToDo för erik sedan: Byt placeholderScreen mot CompareScreen när den finns
+//                CompareScreen(
+//                    uiState = uiState,
+//                    onSelectFirst = viewModel::selectFirst,
+//                    onSelectSecond = viewModel::selectSecond)
+                    PlaceholderScreen(title = "Compare")
             }
 
             // Detaljvy — tar emot pokemonId från rutten
@@ -177,10 +204,32 @@ fun PokedexNavGraph() {
                 arguments = listOf(
                     navArgument("pokemonId") { type = NavType.IntType }
                 )
-            ) { backStackEntry ->
-                // Plocka ut ID: "detail/25" → pokemonId = 25
-                val pokemonId = backStackEntry.arguments?.getInt("pokemonId") ?: return@composable
-                PlaceholderScreen(title = "Detail #$pokemonId")
+            ) {
+                val viewModel: DetailViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val pokemon = uiState.pokemon
+                when {
+                    uiState.isLoading -> {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    uiState.error != null -> {
+                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(text = uiState.error ?: "Something went wrong")
+                        }
+                    }
+                    pokemon != null -> {
+                        DetailScreen(pokemon = pokemon,
+                            evolutionChain = uiState.evolutionChain,
+                            isEvolutionLoading = uiState.isEvolutionLoading,
+                            onBackClick = { navController.popBackStack()},
+                            onLoadEvolution = viewModel::loadEvolutionChain,
+                            evolutionError = uiState.evolutionError,
+                            isFavorite = uiState.isFavorite,
+                            onFavoriteClick = viewModel::toggleFavorite)
+                    }
+                }
             }
         }
     }
@@ -204,10 +253,11 @@ fun PlaceholderScreen(title: String) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+/*@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun NavGraphPreview() {
     PokeCenterTheme {
         PokedexNavGraph()
     }
 }
+ */

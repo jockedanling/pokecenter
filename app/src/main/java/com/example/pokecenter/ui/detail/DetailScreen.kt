@@ -58,8 +58,11 @@ fun DetailScreen(
     pokemon: PokemonDetail,
     evolutionChain: EvolutionChain? = null,
     isEvolutionLoading: Boolean = false,
+    evolutionError: String? = null,
+    isFavorite: Boolean = false,
     onBackClick: () -> Unit = {},
-    onLoadEvolution: () -> Unit = {}
+    onLoadEvolution: () -> Unit = {},
+    onFavoriteClick: () -> Unit = {}
 ) {
     // Vilken tab som är vald (0 = About, 1 = Stats, 2 = Evolution, 3 = Moves)
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -148,7 +151,7 @@ fun DetailScreen(
         when (selectedTab) {
             0 -> AboutTab(pokemon)
             1 -> StatsTab(pokemon.stats, pokemon.primaryType.badgeColor)
-            2 -> EvolutionTab(evolutionChain, isEvolutionLoading)
+            2 -> EvolutionTab(evolutionChain, isEvolutionLoading, evolutionError)
             3 -> MovesTab(pokemon.moves)
         }
     }
@@ -274,7 +277,8 @@ fun StatBarRow(stat: PokemonStat, barColor: Color) {
 @Composable
 fun EvolutionTab(
     evolutionChain: EvolutionChain?,
-    isLoading: Boolean
+    isLoading: Boolean,
+    error: String? = null
 ) {
     Box(
         modifier = Modifier
@@ -284,6 +288,7 @@ fun EvolutionTab(
     ) {
         when {
             isLoading -> CircularProgressIndicator()
+            error != null -> Text("Could not load evolution chain")
             evolutionChain == null -> Text("No evolution data")
             else -> {
                 Row(
@@ -385,6 +390,7 @@ fun EvolutionTabPreview() {
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

@@ -1,7 +1,8 @@
 package com.example.pokecenter.domain.model
 
-data class PokemonDetail (
+data class PokemonDetail(
     val id: Int,
+    val speciesId: Int,
     val name: String,
     val imageUrl: String?,
     val types: List<PokemonType>,
