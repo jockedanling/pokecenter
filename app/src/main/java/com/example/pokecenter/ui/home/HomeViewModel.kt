@@ -84,7 +84,7 @@ class HomeViewModel @Inject constructor(
                     if (isFirstPage) it.copy(
                         isLoading = false,
                         isLoadingMore = false,
-                        error = "Could not load Pokémon. Check your connection and try again"
+                        error = "Could not load Pokémon. Check your connection and try again."
                     )
                     else it.copy(
                         isLoadingMore = false,
