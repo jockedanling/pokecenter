@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,7 +66,6 @@ fun DetailScreen(
     onLoadEvolution: () -> Unit = {},
     onFavoriteClick: () -> Unit = {}
 ) {
-    // Vilken tab som är vald (0 = About, 1 = Stats, 2 = Evolution, 3 = Moves)
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("About", "Stats", "Evolution", "Moves")
 
@@ -90,15 +91,20 @@ fun DetailScreen(
                 )
             }
 
-            // Nummer i övre högra hörnet
-            Text(
-                text = pokemon.formattedNumber,
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.Gray.copy(alpha = 0.6f),
+            // Favorit-hjärta i övre högra hörnet
+            IconButton(
+                onClick = onFavoriteClick,
                 modifier = Modifier
-                    .padding(end = 16.dp, top = 48.dp)
+                    .padding(end = 8.dp, top = 40.dp)
                     .align(Alignment.TopEnd)
-            )
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite
+                    else Icons.Outlined.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color.Red else Color.Gray
+                )
+            }
 
             // Pokémon-bild centrerad
             AsyncImage(
@@ -110,7 +116,7 @@ fun DetailScreen(
                 contentScale = ContentScale.Fit
             )
 
-            // Namn och typ-badges längst ner i headern
+            // Namn, nummer och typ-badges längst ner i headern
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
@@ -120,6 +126,11 @@ fun DetailScreen(
                     text = pokemon.displayName,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = pokemon.formattedNumber,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -139,7 +150,6 @@ fun DetailScreen(
                     selected = selectedTab == index,
                     onClick = {
                         selectedTab = index
-                        // Ladda evolution-data lazy vid första klick
                         if (index == 2) onLoadEvolution()
                     },
                     text = { Text(title) }
@@ -156,7 +166,6 @@ fun DetailScreen(
         }
     }
 }
-
 // About-tab: höjd, vikt, abilities, base experience
 @Composable
 fun AboutTab(pokemon: PokemonDetail) {
