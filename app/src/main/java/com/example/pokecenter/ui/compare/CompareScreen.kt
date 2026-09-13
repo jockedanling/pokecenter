@@ -1,5 +1,12 @@
 package com.example.pokecenter.ui.compare
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +47,9 @@ import com.example.pokecenter.ui.theme.PokeCenterTheme
 fun CompareScreen(
     firstPokemon: PokemonDetail? = null,
     secondPokemon: PokemonDetail? = null,
-    statComparison: List<StatComparison> = emptyList()
+    statComparison: List<StatComparison> = emptyList(),
+    onSelectFirst: (Int) -> Unit = {},
+    onSelectSecond: (Int) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -54,6 +63,41 @@ fun CompareScreen(
             modifier = Modifier.padding(start = 16.dp, bottom = 16.dp)
         )
 
+        // Sökfält för att välja Pokémon via ID
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            var firstId by remember { mutableStateOf("") }
+            var secondId by remember { mutableStateOf("") }
+
+            OutlinedTextField(
+                value = firstId,
+                onValueChange = {
+                    firstId = it
+                    it.toIntOrNull()?.let { id -> onSelectFirst(id) }
+                },
+                label = { Text("Pokémon #") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = secondId,
+                onValueChange = {
+                    secondId = it
+                    it.toIntOrNull()?.let { id -> onSelectSecond(id) }
+                },
+                label = { Text("Pokémon #") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
+                singleLine = true
+            )
+        }
+
         // Två Pokémon-kort sida vid sida
         Row(
             modifier = Modifier
@@ -61,13 +105,11 @@ fun CompareScreen(
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Vänster slot
             CompareSlot(
                 pokemon = firstPokemon,
                 placeholder = "Select first",
                 modifier = Modifier.weight(1f)
             )
-            // Höger slot
             CompareSlot(
                 pokemon = secondPokemon,
                 placeholder = "Select second",

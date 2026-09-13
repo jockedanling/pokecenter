@@ -176,7 +176,7 @@ fun PokedexNavGraph() {
                 )
             }
 
-            // Compare — ersätts med CompareScreen senare
+            // // Compare med sökfält för att välja två Pokémon via ID
 
             composable(Routes.COMPARE) {
                 val viewModel: CompareViewModel = hiltViewModel()
@@ -184,7 +184,9 @@ fun PokedexNavGraph() {
                 CompareScreen(
                     firstPokemon = uiState.firstPokemon,
                     secondPokemon = uiState.secondPokemon,
-                    statComparison = uiState.statComparison
+                    statComparison = uiState.statComparison,
+                    onSelectFirst = viewModel::selectFirst,
+                    onSelectSecond = viewModel::selectSecond
                 )
             }
 
