@@ -207,6 +207,7 @@ fun PokedexNavGraph() {
             ) {
                 val viewModel: DetailViewModel = hiltViewModel()
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val pokemon = uiState.pokemon
                 when {
                     uiState.isLoading -> {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -218,18 +219,17 @@ fun PokedexNavGraph() {
                             Text(text = uiState.error ?: "Something went wrong")
                         }
                     }
-                    uiState.pokemon != null -> {
-                        DetailScreen(pokemon = uiState.pokemon!!,
+                    pokemon != null -> {
+                        DetailScreen(pokemon = pokemon,
                             evolutionChain = uiState.evolutionChain,
                             isEvolutionLoading = uiState.isEvolutionLoading,
                             onBackClick = { navController.popBackStack()},
-                            onLoadEvolution = {viewModel.loadEvolutionChain()})
+                            onLoadEvolution = viewModel::loadEvolutionChain,
+                            evolutionError = uiState.evolutionError,
+                            isFavorite = uiState.isFavorite,
+                            onFavoriteClick = viewModel::toggleFavorite)
                     }
                 }
-                /*backStackEntry ->
-                // Plocka ut ID: "detail/25" → pokemonId = 25
-                val pokemonId = backStackEntry.arguments?.getInt("pokemonId") ?: return@composable
-                PlaceholderScreen(title = "Detail #$pokemonId") */
             }
         }
     }
