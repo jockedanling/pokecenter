@@ -2,11 +2,17 @@ package com.example.pokecenter.data.remote.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
+/*
+Svar från GET /evolution-chain/{id}.
+ */
 @Serializable
 data class EvolutionChainResponse(
     val chain: ChainLinkDto
 )
+// Ett steg i evolutionskedjan.
+// Strukturen är rekursiv: varje steg har en lista
+// evolvesTo med nästa steg, tex: Bulbasor -> Ivysaur -> Venusaur.
+// Appen följer bara första grenen
 @Serializable
 data class ChainLinkDto(
     val species: NamedApiResourceDto,

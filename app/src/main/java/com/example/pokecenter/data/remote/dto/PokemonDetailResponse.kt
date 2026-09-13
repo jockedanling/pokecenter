@@ -3,7 +3,10 @@ package com.example.pokecenter.data.remote.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// toppnivå-objekt. Matchar hella Json-svaret.
+/* DTO som speglas JSON-svaret exakt. Repositoryt mappar om dem till domain-modeller
+så att UI:t inte påverkas om API:t ändras
+*
+*/
 @Serializable
 data class PokemonDetailResponse (
     val id: Int,
@@ -18,7 +21,9 @@ data class PokemonDetailResponse (
     val moves: List<PokemonMoveSlotDto>,
     val species: NamedApiResourceDto
 )
-
+/*
+* slot = 1 är primärtypen, som styr kortets färg
+* */
 @Serializable
 data class PokemonTypeSlotDto (
     val slot: Int,
@@ -39,11 +44,14 @@ data class PokemonStatsDto (
 data class PokemonMoveSlotDto (
     val move: NamedApiResourceDto
 )
+/* Bild-URL:er. Alla är nullable eftersom vissa Pokémon saknar bilder.
+* */
 @Serializable
 data class NamedApiResourceDto (
     val name: String,
     val url: String
 )
+// Bild-url:er. alla är nullable eftersom vissa Pokémons saknar bilder.
 @Serializable
 data class PokemonSpritesDto(
     @SerialName("front_default") val frontDefault: String? = null,
