@@ -90,14 +90,14 @@ val bottomNavItems = listOf(
 
 /**
  * Appens huvudnavigation — kopplar ihop alla skärmar med en bottom bar.
-
-  Struktur:
-  Scaffold (hanterar bottom bar + ger innerPadding)
-   └── NavHost (bestämmer vilken skärm som visas baserat på rutt)
-         ├── HOME → HomeScreen
-         ├── FAVORITES → FavoritesScreen (placeholder)
-         ├── COMPARE → CompareScreen (placeholder)
-         └── DETAIL → DetailScreen (placeholder)
+ *
+ * Struktur:
+ * Scaffold (hanterar bottom bar + ger innerPadding)
+ *   └── NavHost (bestämmer vilken skärm som visas baserat på rutt)
+ *         ├── HOME → HomeScreen
+ *         ├── FAVORITES → FavoritesScreen (med ViewModel)
+ *         ├── COMPARE → CompareScreen (med ViewModel)
+ *         └── DETAIL → DetailScreen (med ViewModel)
  */
 @Composable
 fun PokedexNavGraph() {
@@ -226,30 +226,3 @@ fun PokedexNavGraph() {
         }
     }
 }
-
-/**
-Tillfällig platshållar-skärm.
-Visas för tabs som inte byggts klart ännu (Favorites, Compare, Detail).
-Ersätts med riktiga skärmar efterhand.
- */
-@Composable
-fun PlaceholderScreen(title: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium
-        )
-    }
-}
-
-/*@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun NavGraphPreview() {
-    PokeCenterTheme {
-        PokedexNavGraph()
-    }
-}
- */

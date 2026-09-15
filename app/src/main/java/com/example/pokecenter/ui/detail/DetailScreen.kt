@@ -232,7 +232,7 @@ fun StatsTab(stats: List<PokemonStat>, barColor: Color) {
     }
 }
 
-// Animerad stat-bar som använder Jockes PokemonStat
+// Animerad stat-bar baserat på PokemonStat
 @Composable
 fun StatBarRow(stat: PokemonStat, barColor: Color) {
     val animatedProgress = remember { Animatable(0f) }
