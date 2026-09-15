@@ -36,8 +36,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 
 /**
- * Home Screen visar sökfält, typfilter och Pokémon-grid.
- * Bygger mot PreviewData tills ViewModel kopplas in.
+ * Home Screen — visar sökfält, typfilter och Pokémon-grid.
+ * Använder HomeViewModel för live-data från PokéAPI.
+ * Stöder paginering (laddar fler vid scroll) och sökning/filtrering.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,83 +140,3 @@ fun HomeScreen(
             }
         }
     }
-
-    /*
-    // Tillfälligt lokalt state — ersätts av ViewModel senare
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedType by remember { mutableStateOf<PokemonType?>(null) }
-
-    // Filtrera testdatan baserat på sök och typfilter
-    val filteredPokemon = PreviewData.pokemonList.filter { pokemon ->
-        val matchesSearch = pokemon.name.contains(searchQuery, ignoreCase = true)
-        val matchesType = selectedType == null || pokemon.types.contains(selectedType)
-        matchesSearch && matchesType
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-
-        // App-titel
-        Text(
-            text = "Pokédex",
-            style = MaterialTheme.typography.headlineLarge,
-            modifier = Modifier.padding(start = 16.dp, top = 40.dp, bottom = 8.dp)
-        )
-
-        // Sökfält
-        PokemonSearchBar(
-            query = searchQuery,
-            onQueryChange = { searchQuery = it }
-        )
-
-        // Typfilter-chips — horisontell scrollbar rad
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(PokemonType.entries.filter { it != PokemonType.UNKNOWN }) { type ->
-                FilterChip(
-                    selected = selectedType == type,
-                    onClick = {
-                        // Tryck igen = avmarkera
-                        selectedType = if (selectedType == type) null else type
-                    },
-                    label = { Text(type.displayName) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = type.badgeColor,
-                        selectedLabelColor = Color.White
-                    )
-                )
-            }
-        }
-
-        // Pokémon-grid — 2 kolumner
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(
-                items = filteredPokemon,
-                key = { it.id }
-            ) { pokemon ->
-                PokemonCard(
-                    pokemon = pokemon,
-                    onClick = { onPokemonClick(pokemon.id) }
-                )
-            }
-        }
-    }
-
-
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeScreenPreview() {
-    PokeCenterTheme {
-        HomeScreen()
-    }
-    */
-
-
