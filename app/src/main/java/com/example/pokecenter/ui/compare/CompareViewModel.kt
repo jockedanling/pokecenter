@@ -3,6 +3,7 @@ package com.example.pokecenter.ui.compare
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import retrofit2.HttpException
 import com.example.pokecenter.data.repository.PokemonRepository
 import com.example.pokecenter.domain.model.PokemonDetail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,27 +55,38 @@ class CompareViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CompareUiState())
     val uiState: StateFlow<CompareUiState> = _uiState.asStateFlow()
 
-    fun selectFirst(pokemonId: Int) =
-        selectSlot(pokemonId, isFirst = true)
+    fun selectFirst(query: String) =
+        selectSlot(query, isFirst = true)
 
-    fun selectSecond(pokemonId: Int) =
-        selectSlot(pokemonId, isFirst = false)
+    fun selectSecond(query: String) =
+        selectSlot(query, isFirst = false)
 
     // Hämtar detaljer för vald pokemon och lägger den i rätt sida av jämförelsen
-    private fun selectSlot(pokemonId: Int, isFirst: Boolean) {
+    private fun selectSlot(query: String, isFirst: Boolean) {
+        if (query.isBlank()) return
         viewModelScope.launch { // Sätt loading på rätt sida utan att röra den andra sidans state
             _uiState.update {
                 if (isFirst) it.copy(isLoadingFirst = true, error = null)
                 else it.copy(isLoadingSecond = true, error = null)
             }
             try {
-                val detail = repository.getPokemonDetail(pokemonId)
+                val detail = repository.getPokemonDetailByName(query)
                 _uiState.update {
                     if (isFirst) it.copy(firstPokemon = detail, isLoadingFirst = false)
                     else it.copy(secondPokemon = detail, isLoadingSecond = false)
                 }
             } catch (e: CancellationException) {
                 throw e
+            } catch (e: HttpException) {
+                val msg = if (e.code() == 404) "No Pokémon named \"$query\"."
+                else "Could not load Pokémon."
+                _uiState.update {
+                    if (isFirst) it.copy(
+                        isLoadingFirst = false, error = msg
+                    )
+                    else it.copy(isLoadingSecond = false, error = msg)
+                }
+
             } catch (e: Exception) {
                 _uiState.update {
                     if (isFirst) it.copy(
