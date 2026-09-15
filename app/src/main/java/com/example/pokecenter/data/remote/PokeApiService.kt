@@ -27,6 +27,12 @@ interface PokeApiService {
         @Path("id") id: Int
     ): PokemonDetailResponse
 
+    // PokéAPI accepterar både id och namn i samma path
+    @GET("pokemon/{name}")
+    suspend fun getPokemonDetailByName(
+        @Path("name") name: String
+    ): PokemonDetailResponse
+
     @GET("pokemon-species/{id}")
     suspend fun getPokemonSpecies(
         @Path("id") id: Int

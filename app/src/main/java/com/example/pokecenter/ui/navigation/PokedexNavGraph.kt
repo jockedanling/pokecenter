@@ -185,6 +185,7 @@ fun PokedexNavGraph() {
                     firstPokemon = uiState.firstPokemon,
                     secondPokemon = uiState.secondPokemon,
                     statComparison = uiState.statComparison,
+                    error = uiState.error,
                     onSelectFirst = viewModel::selectFirst,
                     onSelectSecond = viewModel::selectSecond
                 )

@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,8 +50,9 @@ fun CompareScreen(
     firstPokemon: PokemonDetail? = null,
     secondPokemon: PokemonDetail? = null,
     statComparison: List<StatComparison> = emptyList(),
-    onSelectFirst: (Int) -> Unit = {},
-    onSelectSecond: (Int) -> Unit = {}
+    error: String? = null,
+    onSelectFirst: (String) -> Unit = {},
+    onSelectSecond: (String) -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -63,41 +66,51 @@ fun CompareScreen(
             modifier = Modifier.padding(start = 16.dp, bottom = 16.dp)
         )
 
-        // Sökfält för att välja Pokémon via ID
+        // Sökfält för att välja Pokémon via namn eller nummer
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            var firstId by remember { mutableStateOf("") }
-            var secondId by remember { mutableStateOf("") }
+            var firstQuery by remember { mutableStateOf("") }
+            var secondQuery by remember { mutableStateOf("") }
+            val focusManager = LocalFocusManager.current
 
             OutlinedTextField(
-                value = firstId,
-                onValueChange = {
-                    firstId = it
-                    it.toIntOrNull()?.let { id -> onSelectFirst(id) }
-                },
-                label = { Text("Pokémon #") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                value = firstQuery,
+                onValueChange = { firstQuery = it },
+                label = { Text("Name or #") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = {
+                    onSelectFirst(firstQuery)
+                    focusManager.clearFocus()
+                }),
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
-
             OutlinedTextField(
-                value = secondId,
-                onValueChange = {
-                    secondId = it
-                    it.toIntOrNull()?.let { id -> onSelectSecond(id) }
-                },
-                label = { Text("Pokémon #") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                value = secondQuery,
+                onValueChange = { secondQuery = it },
+                label = { Text("Name or #") },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = {
+                    onSelectSecond(secondQuery)
+                    focusManager.clearFocus()
+                }),
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
         }
-
+        if (error != null) {
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style =
+                    MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+            )
+        }
         // Två Pokémon-kort sida vid sida
         Row(
             modifier = Modifier

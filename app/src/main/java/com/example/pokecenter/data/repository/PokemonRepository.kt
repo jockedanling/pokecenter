@@ -52,6 +52,16 @@ class PokemonRepository(
         return fetchDetail(id).toPokemonDetail()
     }
 
+    suspend fun getPokemonDetailByName(query: String): PokemonDetail {
+        // API:et kräver gemener och bindestreck
+        val normalized = query.trim().lowercase().replace(' ', '-')
+        // Skrev användaren ett nummer går det via id så att cachen används
+        normalized.toIntOrNull()?.let { return getPokemonDetail(it) }
+        val response = api.getPokemonDetailByName(normalized)
+        detailCache[response.id] = response // Cacha på id så att Home/Detail slipper hämta den igen
+        return response.toPokemonDetail()
+    }
+
     suspend fun getEvolutionChain(speciesId: Int):
             EvolutionChain {
         val species = api.getPokemonSpecies(speciesId)
