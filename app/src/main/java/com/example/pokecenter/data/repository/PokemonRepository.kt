@@ -138,7 +138,7 @@ private fun ChainLinkDto.toStages(): List<EvolutionStage> {
     val stage = EvolutionStage(
         speciesId = id,
         speciesName = species.name,
-        minLevel = evolutionDetails.firstOrNull()?.minlevel
+        minLevel = evolutionDetails.firstOrNull()?.minLevel
     )
     val next = evolvesTo.firstOrNull()?.toStages() ?: emptyList()
     return listOf(stage) + next

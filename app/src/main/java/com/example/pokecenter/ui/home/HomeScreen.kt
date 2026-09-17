@@ -45,8 +45,8 @@ import androidx.compose.runtime.remember
 fun HomeScreen(
     onPokemonClick: (Int) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
-){
-        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val gridState = rememberLazyGridState()
 
     // Blir true när sista synliga kortet är nära slutet av den redan laddade listan
@@ -59,80 +59,89 @@ fun HomeScreen(
         }
     }
     LaunchedEffect(shouldLoadMore) {
-        if(shouldLoadMore) {
+        if (shouldLoadMore) {
             viewModel.loadNextPage()
         }
     }
 
-        Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Pokédex",
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(start = 16.dp, top = 40.dp, bottom = 8.dp)
-            )
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            text = "Pokédex",
+            style = MaterialTheme.typography.headlineLarge,
+            modifier = Modifier.padding(start = 16.dp, top = 40.dp, bottom = 8.dp)
+        )
 
-            PokemonSearchBar(
-                query = uiState.searchQuery,
-                onQueryChange = viewModel::onSearchQueryChange
-            )
+        PokemonSearchBar(
+            query = uiState.searchQuery,
+            onQueryChange = viewModel::onSearchQueryChange
+        )
 
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(PokemonType.entries.filter {
-                    it != PokemonType.UNKNOWN }) { type ->
-                    FilterChip(
-                        selected = uiState.selectedType == type,
-                        onClick = {
-                            viewModel.onTypeSelected(type) },
-                        label = {
-                            Text(type.displayName) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = type.badgeColor,
-                            selectedLabelColor = Color.White
-                        )
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(PokemonType.entries.filter {
+                it != PokemonType.UNKNOWN
+            }) { type ->
+                FilterChip(
+                    selected = uiState.selectedType == type,
+                    onClick = {
+                        viewModel.onTypeSelected(type)
+                    },
+                    label = {
+                        Text(type.displayName)
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = type.badgeColor,
+                        selectedLabelColor = Color.White
                     )
+                )
+            }
+        }
+        when {
+            uiState.isLoading -> {
+                Box(
+                    Modifier.fillMaxSize(), contentAlignment =
+                        Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
-            when {
-                uiState.isLoading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment =
-                    Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+
+            uiState.error != null -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = uiState.error ?: "Something went wrong")
                 }
-                uiState.error != null -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = uiState.error ?: "Something went wrong")
+            }
+
+            else -> {
+                LazyVerticalGrid(
+                    state = gridState,
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(
+                        items = uiState.pokemonList,
+                        key = { it.id }
+                    ) { pokemon ->
+                        PokemonCard(
+                            pokemon = pokemon,
+                            onClick = {
+                                onPokemonClick(pokemon.id)
+                            }
+                        )
                     }
-                }
-                else -> {
-                    LazyVerticalGrid(
-                        state = gridState,
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(
-                            items = uiState.pokemonList,
-                            key = { it.id}
-                        ) { pokemon ->
-                            PokemonCard(
-                                pokemon = pokemon,
-                                onClick = {
-                                    onPokemonClick(pokemon.id)
-                                }
-                            )
-                        }
-                        if (uiState.isLoadingMore) {
-                            item(span = { GridItemSpan(maxLineSpan)}) {
-                                Box(
-                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) { CircularProgressIndicator()
-                                }
+                    if (uiState.isLoadingMore) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
                             }
                         }
                     }
@@ -140,3 +149,4 @@ fun HomeScreen(
             }
         }
     }
+}

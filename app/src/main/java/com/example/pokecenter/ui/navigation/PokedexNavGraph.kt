@@ -171,12 +171,11 @@ fun PokedexNavGraph() {
                     favorites = favorites,
                     onPokemonClick = { id ->
                         navController.navigate(Routes.detailRoute(id))
-                    },
-                    onRemoveFavorite = viewModel::removeFavorite
+                    }
                 )
             }
 
-            // // Compare med sökfält för att välja två Pokémon via ID
+            // Compare med sökfält för att välja två Pokémon via namn eller id.
 
             composable(Routes.COMPARE) {
                 val viewModel: CompareViewModel = hiltViewModel()

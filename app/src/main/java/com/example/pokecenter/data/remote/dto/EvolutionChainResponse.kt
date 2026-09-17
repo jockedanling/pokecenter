@@ -11,7 +11,7 @@ data class EvolutionChainResponse(
 )
 // Ett steg i evolutionskedjan.
 // Strukturen är rekursiv: varje steg har en lista
-// evolvesTo med nästa steg, tex: Bulbasor -> Ivysaur -> Venusaur.
+// evolvesTo med nästa steg, tex: Bulbasaur -> Ivysaur -> Venusaur.
 // Appen följer bara första grenen
 @Serializable
 data class ChainLinkDto(
@@ -22,5 +22,5 @@ data class ChainLinkDto(
 )
 @Serializable
 data class EvolutionDetailDto(
-    @SerialName("min_level") val minlevel: Int? = null
+    @SerialName("min_level") val minLevel: Int? = null
 )

@@ -19,6 +19,7 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import javax.inject.Singleton
 
 private const val BASE_URL = "https://pokeapi.co/api/v2/"
+
 @Module
 @InstallIn(SingletonComponent::class)
 
@@ -33,13 +34,7 @@ class AppModule {
     @Singleton
     fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
-        /* -- Detta kräver en till dependency om vi vill ha loggning.
-        .addInterceptor(
-            HttpLoggingInterceptor().apply { level =
-        HttpLoggingInterceptor.Level.BASIC }
-        )
-        */
-        .build()
+            .build()
 
     @Provides
     @Singleton
@@ -61,8 +56,9 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providePokemonDatabase(@ApplicationContext
-    context: Context
+    fun providePokemonDatabase(
+        @ApplicationContext
+        context: Context
     ): PokemonDatabase =
         Room.databaseBuilder(context, PokemonDatabase::class.java, "pokemon.db").build()
 
@@ -76,7 +72,9 @@ class AppModule {
     @Singleton
     fun providePokemonRepository(
         api: PokeApiService,
-        favoriteDao: FavoriteDao):
-            PokemonRepository = PokemonRepository(api, favoriteDao
+        favoriteDao: FavoriteDao
+    ):
+            PokemonRepository = PokemonRepository(
+        api, favoriteDao
     )
 }

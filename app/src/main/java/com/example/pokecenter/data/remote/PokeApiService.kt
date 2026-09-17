@@ -4,7 +4,6 @@ import com.example.pokecenter.data.remote.dto.EvolutionChainResponse
 import com.example.pokecenter.data.remote.dto.PokemonDetailResponse
 import com.example.pokecenter.data.remote.dto.PokemonListResponse
 import com.example.pokecenter.data.remote.dto.PokemonSpeciesResponse
-import com.example.pokecenter.data.remote.dto.TypeResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -42,10 +41,5 @@ interface PokeApiService {
     suspend fun getEvolutionChain(
         @Path("id") id: Int
     ): EvolutionChainResponse
-
-    @GET("type/{id}")
-    suspend fun getType(
-        @Path("id") id: Int
-    ): TypeResponse
 
 }

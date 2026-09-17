@@ -1,11 +1,10 @@
 package com.example.pokecenter.domain.model
 
 data class PokemonStat(
-    val name: String, // "hp, "attack, "special-attack osv från API:et
+    val name: String, // "hp", "attack", "special-attack" osv från API:et
 
     val value: Int
-)
-{
+) {
     val shortLabel: String
         get() = when (name) {
             "hp" -> "HP"

@@ -6,7 +6,7 @@ data class EvolutionChain(
 data class EvolutionStage(
     val speciesId: Int,
     val speciesName: String,
-    val minLevel: Int? // null, ingen level-krav och bara bas-formen
+    val minLevel: Int? // null för basformen, som inte har någon level-krav.
 ) {
     val displayName: String
         get() = speciesName.replaceFirstChar { it.uppercase() }

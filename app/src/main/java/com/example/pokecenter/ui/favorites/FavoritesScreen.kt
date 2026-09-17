@@ -26,8 +26,7 @@ import com.example.pokecenter.ui.theme.PokeCenterTheme
 @Composable
 fun FavoritesScreen(
     favorites: List<Pokemon>,
-    onPokemonClick: (Int) -> Unit = {},
-    onRemoveFavorite: (Int) -> Unit = {}
+    onPokemonClick: (Int) -> Unit = {}
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         // Titel
