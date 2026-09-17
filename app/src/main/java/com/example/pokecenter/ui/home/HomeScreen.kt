@@ -66,7 +66,7 @@ fun HomeScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
-            text = "Pokédex",
+            text = "PokéCenter",
             style = MaterialTheme.typography.headlineLarge,
             modifier = Modifier.padding(start = 16.dp, top = 40.dp, bottom = 8.dp)
         )
