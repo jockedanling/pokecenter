@@ -3,20 +3,20 @@ A modern Android Pokédex app built with Kotlin and Jetpack Compose. Browse, sea
 Pokémon by type, view detailed stats and evolution chains, save favorites locally,
 and compare Pokémon side by side, all powered by live data from PokéAPI.
 
-Course: SUM200 - Systemutveckling för mobila applikationer 2, Högskolan väst (HT26)
+Course: SUM200 - Systemutveckling för mobila applikationer 2, Högskolan Väst (HT26)
 Built by: Erik Lans & Joakim Danling
 
 <h2> Features </h2>
-Pokédex browser - Paginares grid with search and type-filter chips
+Pokédex browser - Paginated grid with search and type-filter chips
 Type-colored cards - Every card and detail header adapts to the Pokémon's primary type
-Detail view - tabbed layout with about, starts (animated bars), Evolution chain and Moves.
+Detail view - tabbed layout with about, stats (animated bars), Evolution chain and Moves.
 Favorites - Save Pokémon locally with Room; toogle via heart icon
 Compare - Pick any two Pokémon and view their stats side by side
 
 <h2> Tech Stack </h2>
 UI - Jetpack Compose + Material 3
 Navigation - Navigation Compose (bottom nav + detail routes)
-Networking - Retrofit + kotlinx.seriaization
+Networking - Retrofit + kotlinx.serialization
 Images - Coil (AsyncImage)
 Local storage - Room
 Architecture - MVVM (ViewModel + Repository)
